@@ -1,0 +1,4 @@
+<bottom;blue;string;Pittsburgh is ok>
+<middle;white;number;30>
+<top;white;range;29,40>
+0

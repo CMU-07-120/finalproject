@@ -1,0 +1,160 @@
+#use <file>
+#use <string>
+#use <conio>
+
+/**************************** Implementation ****************************/
+
+typedef struct string_bundle_header string_bundle;
+
+struct string_bundle_header {
+  string[] lines;
+  int length;
+};
+
+struct reader {
+  file_t file;
+  string current;
+  int current_idx;
+};
+
+struct list_cell {
+  string head;
+  struct list_cell *tail;
+};
+
+typedef struct list_cell *list;
+typedef struct reader reader_t;
+typedef string_bundle* bundle_t;
+
+// file reader
+reader_t *get_reader(string filename)
+//@ensures \result != NULL;
+{
+  file_t file = file_read(filename);
+  if (file == NULL) {
+    return NULL;
+  }
+
+  reader_t *r = alloc(reader_t);
+  r->file = file;
+  r->current = "";
+
+  return r;
+}
+
+/* assert lines array matches the expected length */
+bool is_array_expected_length(string[] lines, int length)
+{
+  //@assert \length(lines) == length;
+  return true;
+}
+
+/* check if the string is of the correct shape/type */
+bool is_string_bundle(string_bundle* wl)
+{
+  if (wl == NULL) return true;
+  return is_array_expected_length(wl->lines, wl->length);
+}
+
+/* get the array of strings from the string bundle */
+string[] string_bundle_array(string_bundle* wl)
+//@requires is_string_bundle(wl);
+{
+  return wl == NULL ? alloc_array(string, 0) : wl->lines;
+}
+
+/* get the length of the array of strings from the string bundle */
+int string_bundle_length(string_bundle* wl)
+//@requires is_string_bundle(wl);
+{
+  return wl == NULL ? 0 : wl->length;
+}
+
+/*** linked lists containing strings ***/
+
+int list_length(list l)
+{
+  int count = 0;
+  while (l != NULL) {
+    count++;
+    l = l->tail;
+  }
+  return count;
+}
+
+list list_empty()
+{
+  return NULL;
+}
+
+list list_cons(string s, list l)
+{
+  list res = alloc(struct list_cell);
+  res->head = s;
+  res->tail = l;
+  return res;
+}
+
+/* convert a string list to an array, reversing the elements */
+string[] rev_list_to_array(list l)
+//@ensures \length(\result) == list_length(l);
+{
+  int len = list_length(l);
+  string[] res = alloc_array(string, len);
+  int i;
+  list ll = l;
+  for (i = len-1; i >= 0; i--) {
+    //@assert ll != NULL;
+    res[i] = ll->head;
+    ll = ll->tail;
+  }
+  return res;
+}
+
+/* read all the lines from a file into a string bundle */
+string_bundle* read_lines(string filename)
+//@ensures is_string_bundle(\result);
+{
+    reader_t *r = get_reader(filename);
+    if (r == NULL) {
+        error(string_join(string_join("Cannot open file '", filename), "'"));
+    }
+
+    list l = NULL;
+    string_bundle* res = alloc(string_bundle);
+    int count = 0;
+
+    while (!file_eof(r->file)) {
+        string line = file_readline(r->file);
+        l = list_cons(line, l);
+        count++;
+    }
+
+    res->lines = rev_list_to_array(l);
+    res->length = count;
+    return res;
+}
+
+int hash_string(string s) {
+  int len = string_length(s);
+  int h = 0;
+  for (int i = 0; i < len; i++)
+  //@loop_invariant 0 <= i;
+  {
+    int ch = char_ord(string_charat(s, i));
+  }
+  return h;
+}
+/**************************** Interface ****************************/
+
+// typedef _______* bundle_t;
+
+// call read_lines to get all the lines in the file, e.g. favorites.txt
+bundle_t read_lines(string filename);
+
+// to determine the length of the array in the bundle_t, use:
+int string_bundle_length(bundle_t wl);
+
+// access the array inside of the string bundle using:
+string[] string_bundle_array(bundle_t wl)
+/*@ensures \length(\result) == string_bundle_length(wl); @*/ ;

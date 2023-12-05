@@ -1,0 +1,6 @@
+elevation
+latitude
+longitude
+515.000000
+10.000000
+10.000000

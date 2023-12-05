@@ -1,0 +1,36 @@
+#use <conio>
+#use <string>
+#use <parse>
+
+char[] drop_float(char[] A, char[] B, int len) {
+  for (int i = 0; i < len; i++) {
+    char c = A[i];
+    if (c == '.') {
+      return B;
+    } else {
+      B[i] = A[i];
+    }
+  }
+  return B;    
+}
+
+int main() {
+  bundle_t S = read_lines("newline.txt");
+  int length = string_bundle_length(S);
+  string[] data = string_bundle_array(S);
+
+  println("Before:");
+  for (int i = 0; i < length; i++) {
+    printf("%s\n", data[i]);
+  }
+  println("--------------------");
+
+  int len = string_length(data[3]);
+  char[] A = string_to_chararray(data[3]);
+  char[] B = alloc_array(char, len);
+  char[] C = drop_float(A, B, len);
+  int* num = parse_int(string_from_chararray(C), 10);
+  printf("%d\n", *num);
+
+  return 0;
+}
